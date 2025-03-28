@@ -15,9 +15,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedNavScreen = 0;
   int previouslySelected = 0;
 
+  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
+  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
+  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
+  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
+  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
+
   @override
   Widget build(BuildContext context) {
-    List<Icon> navIcons = [
+    final List<Icon> navIcons = [
       Icon(selectedNavScreen == 0 ? CupertinoIcons.book_fill : CupertinoIcons.book, size: 40),
       Icon(selectedNavScreen == 1 ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled, size: 40),
       Icon(selectedNavScreen == 2 ? CupertinoIcons.number_circle_fill : CupertinoIcons.number_circle, size: 40),

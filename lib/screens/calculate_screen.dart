@@ -4,6 +4,7 @@ import 'package:running_journal_flutter_2/components/my_number_slider.dart';
 import 'package:gap/gap.dart';
 import 'package:wheel_chooser/wheel_chooser.dart';
 import 'package:intl/intl.dart';
+import 'package:stack/stack.dart' as stack_lib;
 
 import '../models/calculator_models/calculator_models.dart';
 
@@ -15,12 +16,46 @@ class CalculateScreen extends StatefulWidget {
 }
 
 class _CalculateScreenState extends State<CalculateScreen> {
-  final Peace peace = Peace(minutes: 4, seconds: 0, speed: 15);
-  final Distance distance = Distance(meters: 1500);
-  final Time time = Time(minutes: 6);
+  late Pace pace;
+  late Distance distance;
+  late Time time;
+
+  stack_lib.Stack<String> lock = stack_lib.Stack<String>();
+
+  int test = 0;
+
+  @override
+  void initState() {
+    pace = Pace(minutes: 4, speed: 15);
+    pace.createControllers();
+
+    distance = Distance(meters: 1500);
+    distance.createControllers();
+
+    time = Time(minutes: 6);
+    time.createControllers();
+
+    pace.peaceMinutesController.addListener(() {});
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    pace.peaceMinutesController.dispose();
+    pace.peaceSecondsController.dispose();
+    distance.distanceController.dispose();
+    time.timeHoursController.dispose();
+    time.timeMinutesController.dispose();
+    time.timeSecondsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    lock.push("Pace");
+    lock.push("Distance");
+    lock.push("Time");
     final NumberFormat formatter = NumberFormat("00");
     final TextStyle variableStyle = TextStyle(fontSize: 70, color: Theme.of(context).colorScheme.primary, height: 1);
     final TextStyle nameStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(height: 1);
@@ -57,6 +92,7 @@ class _CalculateScreenState extends State<CalculateScreen> {
               Row(
                 children: [
                   Text("Pace", style: nameStyle),
+                  lock.top() == "Pace" ? Container() : MyLockIcon(),
                 ],
               ),
               Row(
@@ -66,12 +102,13 @@ class _CalculateScreenState extends State<CalculateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       MyNumberSlider(
+                        controller: pace.peaceMinutesController,
                         noOfPos: 2,
-                        startPosition: peace.minutes,
+                        startPosition: pace.minutes,
                         choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
                         onChangedFunction: (value) {
-                          peace.minutes = value;
-                          peace.calculateSpeed();
+                          pace.minutes = value;
+                          pace.calculateSpeed();
                           setState(() {});
                         },
                       ),
@@ -79,12 +116,13 @@ class _CalculateScreenState extends State<CalculateScreen> {
                         child: Text("'", style: variableStyle),
                       ),
                       MyNumberSlider(
+                        controller: pace.peaceSecondsController,
                         noOfPos: 2,
-                        startPosition: peace.seconds,
+                        startPosition: pace.seconds,
                         choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
                         onChangedFunction: (value) {
-                          peace.seconds = value;
-                          peace.calculateSpeed();
+                          pace.seconds = value;
+                          pace.calculateSpeed();
                           setState(() {});
                         },
                       ),
@@ -93,17 +131,23 @@ class _CalculateScreenState extends State<CalculateScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text("${peace.speed} km/h", style: extraDataStyle),
+                    child: Text("${pace.speed} km/h", style: extraDataStyle),
                   ),
                 ],
               ),
               Gap(40),
 
               //==Distance==
-              Text("Distance", style: nameStyle),
+              Row(
+                children: [
+                  Text("Distance", style: nameStyle),
+                  lock.top() == "Distance" ? Container() : MyLockIcon(),
+                ],
+              ),
               Row(
                 children: [
                   MyNumberSlider(
+                    controller: distance.distanceController,
                     noOfPos: distance.meters < 10
                         ? 1
                         : distance.meters < 100
@@ -128,9 +172,16 @@ class _CalculateScreenState extends State<CalculateScreen> {
               //==Time==
               Row(
                 children: [
+                  Text("Time", style: nameStyle),
+                  lock.top() == "Time" ? Container() : MyLockIcon(),
+                ],
+              ),
+              Row(
+                children: [
                   Row(
                     children: [
                       MyNumberSlider(
+                          controller: time.timeHoursController,
                           startPosition: time.hours,
                           choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
                           onChangedFunction: (value) {
@@ -140,6 +191,7 @@ class _CalculateScreenState extends State<CalculateScreen> {
                           noOfPos: 2),
                       Text(':', style: variableStyle),
                       MyNumberSlider(
+                          controller: time.timeMinutesController,
                           startPosition: time.minutes,
                           choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
                           onChangedFunction: (value) {
@@ -149,6 +201,7 @@ class _CalculateScreenState extends State<CalculateScreen> {
                           noOfPos: 2),
                       Text(':', style: variableStyle),
                       MyNumberSlider(
+                          controller: time.timeSecondsController,
                           startPosition: time.seconds,
                           choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
                           onChangedFunction: (value) {
@@ -169,9 +222,11 @@ class _CalculateScreenState extends State<CalculateScreen> {
                   )
                 ],
               ),
-              Text(peace.toString()),
-              Text('${distance.toString()}'),
-              Text('${time.toString()}'),
+              Text(pace.toString()),
+              Text(distance.toString()),
+              Text(time.toString()),
+              Text(test.toString()),
+              Text(lock.top()),
             ],
           ),
         ),

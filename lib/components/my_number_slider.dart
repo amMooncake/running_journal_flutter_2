@@ -3,6 +3,7 @@ import 'package:wheel_chooser/wheel_chooser.dart';
 
 class MyNumberSlider extends StatefulWidget {
   final int startPosition;
+  final FixedExtentScrollController controller;
   final List<WheelChoice> choices;
   final Function onChangedFunction;
   final int noOfPos;
@@ -12,6 +13,7 @@ class MyNumberSlider extends StatefulWidget {
     required this.choices,
     required this.onChangedFunction,
     required this.noOfPos,
+    required this.controller,
   });
 
   @override
@@ -35,11 +37,11 @@ class _MyNumberSliderState extends State<MyNumberSlider> {
           ).createShader(bounds);
         },
         child: WheelChooser.choices(
-          magnification: 1,
+          controller: widget.controller,
           selectTextStyle: variableStyle,
           unSelectTextStyle: variableStyle.copyWith(color: Theme.of(context).colorScheme.secondary),
           itemSize: 60,
-          startPosition: widget.startPosition,
+          startPosition: null,
           choices: widget.choices,
           onChoiceChanged: (value) {
             widget.onChangedFunction(value);
