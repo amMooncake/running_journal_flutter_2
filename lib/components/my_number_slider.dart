@@ -23,10 +23,10 @@ class MyNumberSlider extends StatefulWidget {
 class _MyNumberSliderState extends State<MyNumberSlider> {
   @override
   Widget build(BuildContext context) {
-    final TextStyle variableStyle = TextStyle(fontSize: 46, color: Theme.of(context).colorScheme.primary, height: 1);
+    final TextStyle variableStyle = TextStyle(fontSize: 40, color: Theme.of(context).colorScheme.primary, height: 1);
     return SizedBox(
       height: 100,
-      width: widget.noOfPos * 46,
+      width: widget.noOfPos * 40,
       child: ShaderMask(
         shaderCallback: (Rect bounds) {
           return LinearGradient(
@@ -40,7 +40,7 @@ class _MyNumberSliderState extends State<MyNumberSlider> {
           controller: widget.controller,
           selectTextStyle: variableStyle,
           unSelectTextStyle: variableStyle.copyWith(color: Theme.of(context).colorScheme.secondary),
-          itemSize: 60,
+          itemSize: 55,
           startPosition: null,
           choices: widget.choices,
           onChoiceChanged: (value) {

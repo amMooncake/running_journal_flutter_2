@@ -3,7 +3,7 @@ import 'package:running_journal_flutter_2/components/my_number_slider.dart';
 import 'package:gap/gap.dart';
 import 'package:wheel_chooser/wheel_chooser.dart';
 import 'package:intl/intl.dart';
-import 'package:stack/stack.dart' as stack_lib;
+import '../components/my_lock_icon.dart';
 
 import '../models/calculator_models/calculator_models.dart';
 
@@ -19,9 +19,30 @@ class _CalculateScreenState extends State<CalculateScreen> {
   late Distance distance;
   late Time time;
 
-  stack_lib.Stack<String> lock = stack_lib.Stack<String>();
+  List<String> lock = [];
 
   int test = 0;
+
+  void calculate() {
+    switch (lock[0]) {
+      case "Pace":
+        pace.calculatePace(time, distance);
+        break;
+      case "Distance":
+        distance.calculateDistance(pace, time);
+        break;
+      case "Time":
+        time.calculateTime(pace, distance);
+        break;
+    }
+    setState(() {});
+  }
+
+  void addListenerToController(FixedExtentScrollController controller, String lockName) {
+    controller.addListener(() {
+      calculate();
+    });
+  }
 
   @override
   void initState() {
@@ -34,7 +55,16 @@ class _CalculateScreenState extends State<CalculateScreen> {
     time = Time(minutes: 6);
     time.createControllers();
 
-    pace.peaceMinutesController.addListener(() {});
+    addListenerToController(pace.peaceMinutesController, "Pace");
+    addListenerToController(pace.peaceSecondsController, "Pace");
+    addListenerToController(distance.distanceController, "Distance");
+    addListenerToController(time.timeHoursController, "Time");
+    addListenerToController(time.timeMinutesController, "Time");
+    addListenerToController(time.timeSecondsController, "Time");
+
+    lock.add("Pace");
+    lock.add("Distance");
+    lock.add("Time");
 
     super.initState();
   }
@@ -47,13 +77,19 @@ class _CalculateScreenState extends State<CalculateScreen> {
     time.timeHoursController.dispose();
     time.timeMinutesController.dispose();
     time.timeSecondsController.dispose();
+    pace.peaceMinutesController.removeListener(() {});
+    pace.peaceSecondsController.removeListener(() {});
+    distance.distanceController.removeListener(() {});
+    time.timeHoursController.removeListener(() {});
+    time.timeMinutesController.removeListener(() {});
+    time.timeSecondsController.removeListener(() {});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final NumberFormat formatter = NumberFormat("00");
-    final TextStyle variableStyle = TextStyle(fontSize: 70, color: Theme.of(context).colorScheme.primary, height: 1);
+    final TextStyle variableStyle = TextStyle(fontSize: 60, color: Theme.of(context).colorScheme.primary, height: 1);
     final TextStyle nameStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(height: 1);
     final TextStyle extraDataStyle = TextStyle(fontSize: 30, color: Theme.of(context).colorScheme.secondary, height: 1);
 
@@ -73,57 +109,62 @@ class _CalculateScreenState extends State<CalculateScreen> {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                child: Text(
-                  "Calculator",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Align(
+              child: Text(
+                "Calculator",
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              Gap(40),
+            ),
+            Gap(40),
 
-              // ==Pace==
-              Row(
-                children: [
-                  Text("Pace", style: nameStyle),
-                  lock.top() == "Pace" ? Container() : MyLockIcon(),
-                ],
-              ),
-              Row(
+            // ==Pace==
+            Row(
+              children: [
+                Text("Pace", style: nameStyle),
+                lock[0] == "Pace" ? Container() : MyLockIcon(),
+              ],
+            ),
+            Listener(
+              onPointerDown: (event) {
+                print("Peace up");
+                lock.remove('Pace');
+                lock.add('Pace');
+                setState(() {});
+              },
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      MyNumberSlider(
-                        controller: pace.peaceMinutesController,
-                        noOfPos: 2,
-                        startPosition: pace.minutes,
-                        choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
-                        onChangedFunction: (value) {
-                          pace.minutes = value;
-                          pace.calculateSpeed();
-                          setState(() {});
-                        },
-                      ),
-                      Positioned(
-                        child: Text("'", style: variableStyle),
-                      ),
-                      MyNumberSlider(
-                        controller: pace.peaceSecondsController,
-                        noOfPos: 2,
-                        startPosition: pace.seconds,
-                        choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
-                        onChangedFunction: (value) {
-                          pace.seconds = value;
-                          pace.calculateSpeed();
-                          setState(() {});
-                        },
-                      ),
-                      Text("\"", style: variableStyle),
-                    ],
+                  Listener(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        MyNumberSlider(
+                          controller: pace.peaceMinutesController,
+                          noOfPos: 2,
+                          startPosition: pace.minutes,
+                          choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
+                          onChangedFunction: (value) {
+                            pace.minutes = value;
+                            pace.calculateSpeed();
+                            setState(() {});
+                          },
+                        ),
+                        Text("'", style: variableStyle),
+                        MyNumberSlider(
+                          controller: pace.peaceSecondsController,
+                          noOfPos: 2,
+                          startPosition: pace.seconds,
+                          choices: List.generate(60, (index) => WheelChoice(value: index, title: formatter.format(index))),
+                          onChangedFunction: (value) {
+                            pace.seconds = value;
+                            pace.calculateSpeed();
+                            setState(() {});
+                          },
+                        ),
+                        Text("\"", style: variableStyle),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -131,16 +172,24 @@ class _CalculateScreenState extends State<CalculateScreen> {
                   ),
                 ],
               ),
-              Gap(40),
+            ),
+            Gap(40),
 
-              //==Distance==
-              Row(
-                children: [
-                  Text("Distance", style: nameStyle),
-                  lock.top() == "Distance" ? Container() : MyLockIcon(),
-                ],
-              ),
-              Row(
+            //==Distance==
+            Row(
+              children: [
+                Text("Distance", style: nameStyle),
+                lock[0] == "Distance" ? Container() : MyLockIcon(),
+              ],
+            ),
+            Listener(
+              onPointerDown: (event) {
+                print("Distance up");
+                lock.remove('Distance');
+                lock.add('Distance');
+                setState(() {});
+              },
+              child: Row(
                 children: [
                   MyNumberSlider(
                     controller: distance.distanceController,
@@ -163,16 +212,25 @@ class _CalculateScreenState extends State<CalculateScreen> {
                   Text("m", style: variableStyle),
                 ],
               ),
-              Gap(40),
+            ),
+            Gap(40),
 
-              //==Time==
-              Row(
-                children: [
-                  Text("Time", style: nameStyle),
-                  lock.top() == "Time" ? Container() : MyLockIcon(),
-                ],
-              ),
-              Row(
+            //==Time==
+            Row(
+              children: [
+                Text("Time", style: nameStyle),
+                lock[0] == "Time" ? Container() : MyLockIcon(),
+              ],
+            ),
+
+            Listener(
+              onPointerDown: (event) {
+                print("Time up");
+                lock.remove('Time');
+                lock.add('Time');
+                setState(() {});
+              },
+              child: Row(
                 children: [
                   Row(
                     children: [
@@ -218,30 +276,14 @@ class _CalculateScreenState extends State<CalculateScreen> {
                   )
                 ],
               ),
-              Text(pace.toString()),
-              Text(distance.toString()),
-              Text(time.toString()),
-              Text(test.toString()),
-              Text(lock.top()),
-            ],
-          ),
+            ),
+            // Text(pace.toString()),
+            // Text(distance.toString()),
+            // Text(time.toString()),
+            // Text(test.toString()),
+            // Text(lock.toList().toString()),
+          ]),
         ),
-      ),
-    );
-  }
-}
-
-class MyLockIcon extends StatelessWidget {
-  const MyLockIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 10),
-      child: Icon(
-        CupertinoIcons.lock_fill,
-        size: 20,
-        color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
       ),
     );
   }

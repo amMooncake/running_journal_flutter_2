@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:running_journal_flutter_2/screens/my_screens.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
 export 'screens/my_screens.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,12 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedNavScreen = 0;
   int previouslySelected = 0;
 
-  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
-  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
-  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
-  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
-  // final FixedExtentScrollController controller = FixedExtentScrollController(initialItem: 0);
-
   @override
   Widget build(BuildContext context) {
     final List<Icon> navIcons = [
@@ -31,9 +24,9 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     const List<Widget> navScreens = [
-      CalculateScreen(),
       JournalScreen(),
       AddTrainingScreen(),
+      CalculateScreen(),
       UserScreen(),
     ];
 
