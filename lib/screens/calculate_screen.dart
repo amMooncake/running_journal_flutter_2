@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:running_journal_flutter_2/components/my_number_slider.dart';
 import 'package:gap/gap.dart';
@@ -53,9 +52,6 @@ class _CalculateScreenState extends State<CalculateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    lock.push("Pace");
-    lock.push("Distance");
-    lock.push("Time");
     final NumberFormat formatter = NumberFormat("00");
     final TextStyle variableStyle = TextStyle(fontSize: 70, color: Theme.of(context).colorScheme.primary, height: 1);
     final TextStyle nameStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(height: 1);
